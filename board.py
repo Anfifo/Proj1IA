@@ -4,6 +4,7 @@ from cStringIO import StringIO
 def make_pos(l, c):
     return l, c
 
+
 class Board:
     def __init__(self, board):
         self.board = board
@@ -19,8 +20,30 @@ class Board:
             buff += '\n'
         return buff
 
+    def find_groups(self):
+        nrColumns = self.nrColumns
+        nrLines = self.nrLines
+
+        groups = []
+        visited = []
+        for i in xrange(nrLines):
+            l = []
+            for j in xrange(nrColumns):
+                l.append(False)
+            visited.append(l)
+
+        for i in xrange(nrLines):
+            for j in xrange(nrColumns):
+                if not visited[i][j]:
+                    group = self._find_group(make_pos(i, j))
+                    for x, y in group:
+                        visited[x][y] = 'True'
+                    if len(group) > 1:
+                        groups.append(group)
+        return groups
+
     # Private methods: prefixed by "underscore"
-    def adjacent(self, pos):
+    def _adjacent(self, pos):
         positions = [make_pos(pos[0] - 1, pos[1]), make_pos(pos[0] + 1, pos[1]), make_pos(pos[0], pos[1] - 1),
                      make_pos(pos[0], pos[1] + 1)]
         adjacent_positions = []
@@ -30,7 +53,7 @@ class Board:
                 adjacent_positions.append(p)
         return adjacent_positions
 
-    def find_group(self, pos):
+    def _find_group(self, pos):
         """:return a list with all the positions of the balls in the same group as the ball in the given position"""
         group = [pos]
         visited = []
@@ -44,7 +67,7 @@ class Board:
         visited[pos[0]][pos[1]] = True
         while stack:
             pos = stack.pop()
-            for p in self.adjacent(pos):
+            for p in self._adjacent(pos):
                 (x,y) = p
                 if not visited[x][y]:
                     stack.append(p)
@@ -52,11 +75,43 @@ class Board:
                     visited[x][y] = True
         return group
 
+#getattr(<object>,<name>) - retorna o valor do atributo <name> do <object>
 
 
+def board_find_groups(board):
+        return Board(board).find_groups()
 
 
+def board_remove_group(b, group):
 
-b = Board([[1,1,2],[0,1,2],[1,3,2]])
+    nrColumns = getattr(b, 'nrColumns')
+    nrLines = getattr(b, 'nrLines')
+    board = getattr(b,'board')
+
+    # removes the balls from the positions in the group
+    for pos in group:
+        board[pos[0]][pos[1]] = 0
+
+    # drops the balls
+    for j in xrange(nrColumns):
+        for i in (xrange(nrLines)):
+            if board[i][j] == 0:
+                for k in reversed(xrange(i)):
+                    board[k+1][j] = board[k][j]
+                    board[k][j] = 0
+
+    print b
+
+
+b = Board([[3,2,2],[3,9,2],[3,1,2]])
 print b
-print b.find_group((0,0))
+
+print '------------'
+
+groups = board_find_groups([[3,2,2],[3,9,2],[3,1,2]])
+print groups
+
+
+print '-----------'
+
+board_remove_group(b,groups[0])
