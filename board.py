@@ -1,5 +1,3 @@
-from cStringIO import StringIO
-
 
 def make_pos(l, c):
     return l, c
@@ -8,8 +6,8 @@ def make_pos(l, c):
 class Board:
     def __init__(self, board):
         self.board = board
-        self.nrLines = len(board)
-        self.nrColumns = len(board)
+        self.nr_lines = len(board)
+        self.nr_columns = len(board)
 
     def __str__(self):
         buff = ''
@@ -21,19 +19,19 @@ class Board:
         return buff
 
     def find_groups(self):
-        nrColumns = self.nrColumns
-        nrLines = self.nrLines
+        nr_columns = self.nr_columns
+        nr_lines = self.nr_lines
 
         groups = []
         visited = []
-        for i in xrange(nrLines):
+        for i in range(nr_lines):
             l = []
-            for j in xrange(nrColumns):
+            for j in range(nr_columns):
                 l.append(False)
             visited.append(l)
 
-        for i in xrange(nrLines):
-            for j in xrange(nrColumns):
+        for i in range(nr_lines):
+            for j in range(nr_columns):
                 if not visited[i][j]:
                     group = self._find_group(make_pos(i, j))
                     for x, y in group:
@@ -49,7 +47,7 @@ class Board:
         adjacent_positions = []
         color = self.board[pos[0]][pos[1]]
         for p in positions:
-            if 0 <= p[0] < self.nrLines and 0 <= p[1] < self.nrColumns and self.board[p[0]][p[1]] == color:
+            if 0 <= p[0] < self.nr_lines and 0 <= p[1] < self.nr_columns and self.board[p[0]][p[1]] == color:
                 adjacent_positions.append(p)
         return adjacent_positions
 
@@ -58,9 +56,9 @@ class Board:
         group = [pos]
         visited = []
         stack = [pos]
-        for i in xrange(self.nrLines):
+        for i in range(self.nr_lines):
             l = []
-            for j in xrange(self.nrColumns):
+            for j in range(self.nr_columns):
                 l.append(False)
             visited.append(l)
 
@@ -84,8 +82,8 @@ def board_find_groups(board):
 
 def board_remove_group(b, group):
 
-    nrColumns = getattr(b, 'nrColumns')
-    nrLines = getattr(b, 'nrLines')
+    nr_columns = getattr(b, 'nr_columns')
+    nr_lines = getattr(b, 'nr_lines')
     board = getattr(b,'board')
 
     # removes the balls from the positions in the group
@@ -93,25 +91,25 @@ def board_remove_group(b, group):
         board[pos[0]][pos[1]] = 0
 
     # drops the balls
-    for j in xrange(nrColumns):
-        for i in (xrange(nrLines)):
+    for j in range(nr_columns):
+        for i in (range(nr_lines)):
             if board[i][j] == 0:
-                for k in reversed(xrange(i)):
+                for k in reversed(range(i)):
                     board[k+1][j] = board[k][j]
                     board[k][j] = 0
 
-    print b
+    print (b)
 
 
 b = Board([[3,2,2],[3,9,2],[3,1,2]])
-print b
+print (b)
 
-print '------------'
+print ('------------')
 
 groups = board_find_groups([[3,2,2],[3,9,2],[3,1,2]])
-print groups
+print (groups)
 
 
-print '-----------'
+print ('-----------')
 
 board_remove_group(b,groups[0])
