@@ -1,15 +1,49 @@
+# TAI color
+# sem cor = 0
+# com cor > 0
+def get_no_color():
+    return 0
 
+
+def no_color(c):
+    return c == 0
+
+
+def color(c):
+    return c > 0
+
+
+# TAI pos
+# Tuple (l, c)
 def make_pos(l, c):
-    return l, c
+    return (l, c)
+
+
+def pos_l(pos):
+    return pos[0]
+
+
+def pos_c(pos):
+    return pos[1]
 
 
 class Board:
+    """
+    Represents a Same Game board
+    """
     def __init__(self, board):
+        """
+        Constructor
+        :param board:
+        """
         self.board = board
         self.nr_lines = len(board)
         self.nr_columns = len(board)
 
     def __str__(self):
+        """
+        :return: String representation of the board
+        """
         buff = ''
         for line in self.board:
             buff += '|'
@@ -19,6 +53,9 @@ class Board:
         return buff
 
     def find_groups(self):
+        """
+        :return: A list with all the groups in the board
+        """
         nr_columns = self.nr_columns
         nr_lines = self.nr_lines
 
@@ -40,19 +77,26 @@ class Board:
                         groups.append(group)
         return groups
 
-    # Private methods: prefixed by "underscore"
+
     def _adjacent(self, pos):
-        positions = [make_pos(pos[0] - 1, pos[1]), make_pos(pos[0] + 1, pos[1]), make_pos(pos[0], pos[1] - 1),
-                     make_pos(pos[0], pos[1] + 1)]
+        """
+        :param pos:
+        :return: A list with the positions of the adjacent pieces of the same color of the pice in the given position
+        """
+        positions = [make_pos(pos_l(pos) - 1, pos_c(pos)), make_pos(pos_l(pos) + 1, pos_c(pos)), make_pos(pos_l(pos), pos_c(pos) - 1),
+                     make_pos(pos_l(pos), pos_c(pos) + 1)]
         adjacent_positions = []
-        color = self.board[pos[0]][pos[1]]
+        c = self.board[pos_l(pos)][pos_c(pos)]
         for p in positions:
-            if 0 <= p[0] < self.nr_lines and 0 <= p[1] < self.nr_columns and self.board[p[0]][p[1]] == color:
+            if 0 <= pos_l(p) < self.nr_lines and 0 <= pos_c(p) < self.nr_columns and color(self.board[pos_l(p)][pos_c(p)]) and self.board[pos_l(p)][pos_c(p)] == c:
                 adjacent_positions.append(p)
         return adjacent_positions
 
     def _find_group(self, pos):
-        """:return a list with all the positions of the balls in the same group as the ball in the given position"""
+        """
+        :param pos:
+        :return a list with all the positions of the balls in the same group as the ball in the given position
+        """
         group = [pos]
         visited = []
         stack = [pos]
@@ -62,54 +106,108 @@ class Board:
                 l.append(False)
             visited.append(l)
 
-        visited[pos[0]][pos[1]] = True
+        visited[pos_l(pos)][pos_c(pos)] = True
         while stack:
             pos = stack.pop()
             for p in self._adjacent(pos):
-                (x,y) = p
+                (x, y) = p
                 if not visited[x][y]:
                     stack.append(p)
                     group.append(p)
                     visited[x][y] = True
         return group
 
-#getattr(<object>,<name>) - retorna o valor do atributo <name> do <object>
+
+class sg_stage:
+    """
+    Represent a stage in the game
+    """
+    def __init__(self, board):
+        """
+        Constructor
+        :param board:
+        """
+        self.board = board;
+    def __lt__(self, other):
+        """
+        Less than operator
+        :param other: stage to compare to
+        :return: true if self < other, false otherwise
+        """
+        return
+
+
+class Problem:
+    def __init__(self):
+        pass
+
+
+class same_game(Problem):  # class <class_name>(<super_class>):
+    """
+    Models a Same Game problem as a satisfaction problem.
+    A solution cannot have pieces left on the board.
+    """
+    def __init__(self, board):
+        pass
+
+    def actions(self, state):
+        pass
+
+    def result(self, state, action):
+        pass
+
+    def goal_test(self, state):
+        pass
+
+    def path_cost(self, c, state1, action, state2):
+        pass
+
+    def h(self, node):
+        """Needed for informed search."""
+        pass
 
 
 def board_find_groups(board):
-        return Board(board).find_groups()
+    """
+    :param board:
+    :return: A List with all the groups in the given board
+    """
+    return Board(board).find_groups()
 
 
 def board_remove_group(b, group):
 
     nr_columns = getattr(b, 'nr_columns')
     nr_lines = getattr(b, 'nr_lines')
-    board = getattr(b,'board')
+    board = getattr(b, 'board')
 
     # removes the balls from the positions in the group
     for pos in group:
-        board[pos[0]][pos[1]] = 0
+        board[pos_l(pos)][pos_c(pos)] = 0
 
     # drops the balls
     for j in range(nr_columns):
         for i in (range(nr_lines)):
-            if board[i][j] == 0:
+            pos = (i,j)
+            line = pos_l(pos)
+            column = pos_c(pos)
+            if board[line][column] == 0:
                 for k in reversed(range(i)):
-                    board[k+1][j] = board[k][j]
+                    board[k+ 1][j] = board[k][j]
                     board[k][j] = 0
 
-    print (b)
+    print(b)
+    return board
 
 
-b = Board([[3,2,2],[3,9,2],[3,1,2]])
-print (b)
+b = Board([[0, 2, 2], [0, 9, 2], [0, 1, 2]])
+print(b)
 
-print ('------------')
+print('------------')
 
-groups = board_find_groups([[3,2,2],[3,9,2],[3,1,2]])
-print (groups)
+groups = board_find_groups([[0, 2, 2], [0, 9, 2], [0, 1, 2]])
+print(groups)
 
+print('-----------')
 
-print ('-----------')
-
-board_remove_group(b,groups[0])
+board_remove_group(b, groups[0])
