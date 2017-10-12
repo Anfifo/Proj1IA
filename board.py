@@ -208,44 +208,26 @@ def board_remove_group(b, group):
 
     # drops the balls
     for j in range(nr_columns):
+        empty_column = True  # empty column flag
         for i in (range(nr_lines)):
-            pos = (i,j)
+            pos = make_pos(i,j)
             line = pos_l(pos)
             column = pos_c(pos)
             if board[line][column] == 0:
                 for k in reversed(range(i)):
-                    board[k+ 1][j] = board[k][j]
+                    board[k + 1][j] = board[k][j]
                     board[k][j] = 0
+            else:
+                empty_column = False
+
+        # removes the empty column and pushes all elements to the left
+        if empty_column:
+            for k in range(j, nr_columns-1):
+                for i in range(nr_lines):
+                    board[i][k] = board[i][k+1]
+                    board[i][k+1] = 0
+
 
     print(b)
     return board
 
-"""
-    b = Board([[0, 2, 2], [0, 9, 2], [0, 1, 2]])
-    print(b)
-
-    print('------------')
-
-    groups = board_find_groups([[0, 2, 2], [0, 9, 2], [0, 1, 2]])
-    print(groups)
-
-    print('-----------')
-
-    board_remove_group(b, groups[1])
-
-    s = same_game([[0, 2, 2], [0, 9, 2], [0, 1, 2]])
-    state = sg_stage([[0, 2, 2], [0, 9, 2], [0, 1, 2]])
-    print (s.goal_test(state))
-    actions = s.actions(state)
-    print (actions)
-    state2 = s.result(state,actions[0])
-    print(state2)
-    print("state")
-    print(state)
-"""
-
-b1 = Board([[1,2],[1,1]])
-print(b1)
-g = b1.find_groups()
-board_remove_group(b1,g[0])
-print(b1)
