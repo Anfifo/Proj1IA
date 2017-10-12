@@ -127,7 +127,7 @@ class sg_stage:
         Constructor
         :param board:
         """
-        self.board = board;
+        self.board = board
     def __lt__(self, other):
         """
         Less than operator
@@ -187,27 +187,40 @@ def board_remove_group(b, group):
 
     # drops the balls
     for j in range(nr_columns):
+        empty_column = True  # empty column flag
         for i in (range(nr_lines)):
-            pos = (i,j)
+            pos = make_pos(i,j)
             line = pos_l(pos)
             column = pos_c(pos)
             if board[line][column] == 0:
                 for k in reversed(range(i)):
-                    board[k+ 1][j] = board[k][j]
+                    board[k + 1][j] = board[k][j]
                     board[k][j] = 0
+            else:
+                empty_column = False
+
+        # removes the empty column and pushes all elements to the left
+        if empty_column:
+            for k in range(j, nr_columns-1):
+                for i in range(nr_lines):
+                    board[i][k] = board[i][k+1]
+                    board[i][k+1] = 0
+
 
     print(b)
     return board
 
 
-b = Board([[0, 2, 2], [0, 9, 2], [0, 1, 2]])
+b = Board([[1, 2, 2], [1, 9, 2], [1, 1, 2]])
 print(b)
 
 print('------------')
 
-groups = board_find_groups([[0, 2, 2], [0, 9, 2], [0, 1, 2]])
+groups = b.find_groups()
 print(groups)
 
 print('-----------')
-
+print (b)
+board_remove_group(b, groups[0])
+groups = b.find_groups()
 board_remove_group(b, groups[0])
