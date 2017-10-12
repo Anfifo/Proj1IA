@@ -38,7 +38,7 @@ class Board:
         Constructor
         :param board:
         """
-        self.board = []
+        self.board = board
         self.nr_lines = len(board)
         self.nr_columns = len(board[0])
 
@@ -132,14 +132,13 @@ class sg_stage:
         Constructor
         :param board:
         """
-        self.board = Board(board)
-        self.groups = self.board.find_groups()
+        self.board = board
 
     def get_board(self):
         return self.board
 
     def get_groups(self):
-        return self.groups
+        return self.board.find_groups()
 
     def __eq__(self, other):
         return self.board == other.get_board()
@@ -162,9 +161,9 @@ class same_game(Problem):  # class <class_name>(<super_class>):
     A solution cannot have pieces left on the board.
     """
     def __init__(self, board):
-        self.initial = sg_stage(board)
+        self.initial = sg_stage(Board(board))
         nr_lines, nr_columns = self.initial.get_board().get_dimensions()
-        self.goal = sg_stage([[0] * nr_columns] * nr_lines)
+        self.goal = sg_stage(Board([[0] * nr_columns] * nr_lines))
 
     def actions(self, state):
         actions = []
@@ -197,10 +196,15 @@ def board_find_groups(board):
 
 
 def board_remove_group(b, group):
+    board = []
+    for line in b.get_board():
+        board_line = []
+        for elem in line:
+            board_line.append(elem)
+        board.append(board_line)
 
     nr_columns = getattr(b, 'nr_columns')
     nr_lines = getattr(b, 'nr_lines')
-    board = getattr(b, 'board')
 
     # removes the balls from the positions in the group
     for pos in group:
@@ -227,7 +231,20 @@ def board_remove_group(b, group):
                     board[i][k] = board[i][k+1]
                     board[i][k+1] = 0
 
+    return Board(board)
 
-    print(b)
-    return board
+b1_list= [[1,0,0],[1,0,0]]
+b1 = Board(b1_list)
+game = same_game(b1_list)
+state1 = sg_stage(b1)
+print("State 1:")
+print(state1)
+actions1 = game.actions(state1)
+state2 = game.result(state1, actions1[0])
+print("State 2:")
+print(state2)
+print("State 1:")
+print(state1)
+print(game.goal_test(state1))
+
 
