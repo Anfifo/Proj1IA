@@ -47,12 +47,12 @@ class Board:
     def __init__(self, board):
         """
         Constructor
-        :param board:
+        generates the board's attributes
+        :param board: receives a 2D vector (AKA) Matrix that represents the board
         """
         self.board = board
         self.nr_lines = len(board)
         self.nr_columns = len(board[0])
-
 
     def __str__(self):
         """
@@ -75,11 +75,16 @@ class Board:
     def get_pos_value(self, pos):
         return self.board[pos_l(pos)][pos_c(pos)]
 
-
     def set_pos_value(self, pos, value):
         self.board[pos_l(pos)][pos_c(pos)] = value
 
     def move_pos_value(self, to_position, from_position):
+        """
+        Moves value FROM a position TO another position
+        WARNING: makes FROM position empty!
+        :param to_position: the position to which you're moving value to
+        :param from_position: the position from which you're moving the value to and gets cleared
+        """
         value = self.get_pos_value(from_position)
         self.set_pos_value(to_position, value)
         self.set_pos_value(from_position, get_no_color())
@@ -89,13 +94,14 @@ class Board:
 
     def find_groups(self):
         """
+        Finds group of all related items
         :return: A list with all the groups in the board
         """
         nr_columns = self.nr_columns
         nr_lines = self.nr_lines
 
         groups = []
-        visited = [[False]* nr_columns] * nr_lines
+        visited = [[False] * nr_columns] * nr_lines
 
         for i in range(nr_lines):
             for j in range(nr_columns):
@@ -108,15 +114,21 @@ class Board:
 
     def _adjacent(self, pos):
         """
-        :param pos:
+        :param pos: target position
         :return: A list with the positions of the adjacent pieces of the same color of the pice in the given position
         """
-        positions = [make_pos(pos_l(pos) - 1, pos_c(pos)), make_pos(pos_l(pos) + 1, pos_c(pos)), make_pos(pos_l(pos), pos_c(pos) - 1),
+        positions = [make_pos(pos_l(pos) - 1, pos_c(pos)),
+                     make_pos(pos_l(pos) + 1, pos_c(pos)),
+                     make_pos(pos_l(pos), pos_c(pos) - 1),
                      make_pos(pos_l(pos), pos_c(pos) + 1)]
         adjacent_positions = []
         c = self.board[pos_l(pos)][pos_c(pos)]
+
         for p in positions:
-            if 0 <= pos_l(p) < self.nr_lines and 0 <= pos_c(p) < self.nr_columns and color(self.board[pos_l(p)][pos_c(p)]) and self.board[pos_l(p)][pos_c(p)] == c:
+            if (0 <= pos_l(p) < self.nr_lines
+                    and 0 <= pos_c(p) < self.nr_columns
+                    and color(self.board[pos_l(p)][pos_c(p)])
+                    and self.board[pos_l(p)][pos_c(p)] == c):
                 adjacent_positions.append(p)
         return adjacent_positions
 
@@ -129,10 +141,10 @@ class Board:
         visited = []
         stack = [pos]
         for i in range(self.nr_lines):
-            l = []
+            lst = []
             for j in range(self.nr_columns):
-                l.append(False)
-            visited.append(l)
+                lst.append(False)
+            visited.append(lst)
 
         visited[pos_l(pos)][pos_c(pos)] = True
         while stack:
@@ -148,15 +160,21 @@ class Board:
 
 def board_find_groups(board):
     """
-    :param board:
+    :param board: the board in which the search will happen
     :return: A List with all the groups in the given board
     """
     return Board(board).find_groups()
 
 
-def board_remove_group(b, group):
-
-    board = board_make_copy(b)
+def board_remove_group(old_board, group):
+    """creates a board without the group of positions from board
+    clears any empty columns found by pushing it's right columns to the left
+    pushes down any element that has no element bellow it
+    :param old_board:
+    :param group: to be removed
+    :return: a board without the given group position
+    """
+    board = board_make_copy(old_board)
     dimensions = board.get_dimensions()
     nr_columns = dimensions[1]
     nr_lines = dimensions[0]
