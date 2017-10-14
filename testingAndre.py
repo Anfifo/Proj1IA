@@ -99,7 +99,7 @@ class Board:
 
         # removes the balls from the positions in the group
         for pos in group:
-            self.set_ball_color(pos, 0)
+            self.set_ball_color(pos, get_no_color())
 
         # drops the balls
         for j in range(self.nr_columns):
@@ -108,7 +108,7 @@ class Board:
             for i in range(self.nr_lines):
                 if no_color(self.get_ball(make_pos(i, j))):
                     for line in reversed(range(i)):
-                        upper_pos = make_pos(make_pos(line, j))
+                        upper_pos = make_pos(line, j)
                         lower_pos = make_pos(line + 1, j)
                         self.move_ball_to(lower_pos, upper_pos)
 
@@ -123,7 +123,7 @@ class Board:
                         left_column = make_pos(line, column)
                         self.move_ball_to(left_column, right_column)
 
-            return self
+        return self
 
     def _adjacent(self, pos):
         """
@@ -234,7 +234,6 @@ class same_game(Problem):  # class <class_name>(<super_class>):
     def result(self, state, action):
         return sg_stage(board_remove_group(state.get_board(),action))
 
-
     def goal_test(self, state):
         return state == self.goal
 
@@ -246,13 +245,13 @@ class same_game(Problem):  # class <class_name>(<super_class>):
         pass
 
 
-b1_list= [[2,2,2],[1,1,1],[1,1,1]]
+b1_list = [[2, 2, 2], [1, 1, 1], [1, 1, 1]]
 b1 = Board(b1_list)
 game = same_game(b1_list)
 state1 = sg_stage(b1)
-print (b1)
+print(b1)
 b1.remove_group(b1.find_groups()[1])
-print (b1)
+print(b1)
 """print("State 1:")
 print(state1)
 actions1 = game.actions(state1)
