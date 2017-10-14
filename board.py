@@ -62,8 +62,10 @@ class Board:
         return  self.board
 
     def get_ball(self, pos):
-        if color(self.board[pos_l(pos)][pos_c(pos)]):
-            return self.board[pos_l(pos)][pos_c(pos)]
+        return self.board[pos_l(pos)][pos_c(pos)]
+
+    def set_ball_color(self, pos, color):
+        self.board[pos_l(pos)][pos_c(pos)] = color
 
     def __eq__(self, other):
         return self.board == other.get_board()
@@ -91,10 +93,9 @@ class Board:
 
     def remove_group(self, group):
 
-        print (self)
         # removes the balls from the positions in the group
         for pos in group:
-            self.board[pos_l(pos)][pos_c(pos)] = 0
+            self.set_ball_color(pos, 0)
 
         # drops the balls
         for j in range(self.nr_columns):
@@ -102,23 +103,21 @@ class Board:
 
             for i in range(self.nr_lines):
 
-                if not self.get_ball(make_pos(i,j)):
+                if no_color(self.get_ball(make_pos(i,j))):
 
                     for k in reversed(range(i)):
-                        self.board[k + 1][j] = self.board[k][j]
-                        self.board[k][j] = 0
+                        self.set_ball_color(make_pos(k+1,j), self.get_ball(make_pos(k,j)))
+                        self.set_ball_color(make_pos(k, j), 0)
 
                 else:
                     empty_column = False
-
-            print(self)
 
             # removes the empty column and pushes all elements to the left
             if empty_column:
                 for k in range(j, self.nr_columns - 1):
                     for i in range(self.nr_lines):
-                        self.board[i][k] = self.board[i][k + 1]
-                        self.board[i][k + 1] = 0
+                        self.set_ball_color(make_pos(i, k), self.get_ball(make_pos(i, k + 1)))
+                        self.set_ball_color(make_pos(i, k + 1), 0)
 
             return self
 
@@ -130,9 +129,9 @@ class Board:
         positions = [make_pos(pos_l(pos) - 1, pos_c(pos)), make_pos(pos_l(pos) + 1, pos_c(pos)), make_pos(pos_l(pos), pos_c(pos) - 1),
                      make_pos(pos_l(pos), pos_c(pos) + 1)]
         adjacent_positions = []
-        c = self.board[pos_l(pos)][pos_c(pos)]
+        c = self.get_ball(pos)
         for p in positions:
-            if 0 <= pos_l(p) < self.nr_lines and 0 <= pos_c(p) < self.nr_columns and self.board[pos_l(p)][pos_c(p)] == c:
+            if 0 <= pos_l(p) < self.nr_lines and 0 <= pos_c(p) < self.nr_columns and self.get_ball(p) == c:
                 adjacent_positions.append(p)
         return adjacent_positions
 
@@ -242,15 +241,18 @@ class same_game(Problem):  # class <class_name>(<super_class>):
         pass
 
 
-b1_list= [[2,2,0],[1,1,0],[1,1,0]]
+b1_list= [[2,2,2],[1,1,1],[1,1,1]]
 b1 = Board(b1_list)
 game = same_game(b1_list)
 state1 = sg_stage(b1)
-print("State 1:")
+print (b1)
+b1.remove_group(b1.find_groups()[1])
+print (b1)
+"""print("State 1:")
 print(state1)
 actions1 = game.actions(state1)
 print (actions1)
-b1.remove_group(actions1[1])
+b1.remove_group(actions1[1])"""
 """
 state2 = game.result(state1, actions1[1])
 print("State 2:")
