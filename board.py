@@ -182,19 +182,36 @@ class sg_stage:
     Represent a stage in the game
     """
     def __init__(self, board):
+
         """
         Constructor
         :param board:
+        :type: board: Board
         """
         self.board = board
+        self.cost = 0
+
+    def set_cost(self, cost):
+        self.cost = cost
+
+    def get_cost(self):
+        return self.cost
 
     def get_board(self):
+        """
+        :return:
+        :rtype:
+        """
         return self.board
 
     def get_groups(self):
         return self.board.find_groups()
 
     def __eq__(self, other):
+        """
+        :param: other: board to compare to
+        :rtype: bool
+        """
         return self.board == other.get_board()
 
     def __lt__(self, other):
@@ -203,7 +220,7 @@ class sg_stage:
         :param other: stage to compare to
         :return: true if self < other, false otherwise
         """
-        pass
+        return self.cost < other.get_cost()
 
     def __str__(self):
         return str(self.board)
@@ -215,6 +232,9 @@ class same_game(Problem):  # class <class_name>(<super_class>):
     A solution cannot have pieces left on the board.
     """
     def __init__(self, board):
+        """
+        :param board: [a lista of lists]
+        """
         self.initial = sg_stage(Board(board))
         nr_lines, nr_columns = self.initial.get_board().get_dimensions()
         self.goal = sg_stage(Board([[0] * nr_columns] * nr_lines))
@@ -234,34 +254,47 @@ class same_game(Problem):  # class <class_name>(<super_class>):
         return state == self.goal
 
     def path_cost(self, c, state1, action, state2):
-        pass
+        state2.set_cost(c+1)
+        return c + 1
 
     def h(self, node):
-        """Needed for informed search."""
         pass
 
-
+"""
 b1_list= [[2,2,2],[1,1,1],[1,1,1]]
 b1 = Board(b1_list)
 game = same_game(b1_list)
-state1 = sg_stage(b1)
-print (b1)
-b1.remove_group(b1.find_groups()[1])
-print (b1)
-"""print("State 1:")
-print(state1)
-actions1 = game.actions(state1)
-print (actions1)
-b1.remove_group(actions1[1])"""
 """
-state2 = game.result(state1, actions1[1])
+
+"""
+state1 = sg_stage(b1)
+print("State 1:")
+print(state1)
+print(game.h(state1))
+
+#print(game.goal_test(state1))
+
+actions1 = game.actions(state1)
+#print (actions1)
+
+state2 = game.result(state1, actions1[0])
 print("State 2:")
 print(state2)
-print(game.goal_test(state2))"""
-#actions2 = game.actions(state2)
-#state3 = game.result(state2, actions2[0])
-#print("State 3:")
-#print(state3)
+print(game.h(state2))
+
+#print(game.goal_test(state2))
+
+actions2 = game.actions(state2)
+#print (actions2)
+
+state3 = game.result(state2, actions2[0])
+print("State 3:")
+print(state3)
+print(game.h(state3))
+
+
+"""
+
 #print(game.goal_test(state3))
 
 
