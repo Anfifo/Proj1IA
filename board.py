@@ -42,30 +42,35 @@ class Board:
         self.nr_lines = len(board)
         self.nr_columns = len(board[0])
 
-
     def __str__(self):
         """
         :return: String representation of the board
         """
-        buff = ''
-        for line in self.board:
-            buff += '|'
-            for piece in line:
-                buff += str(piece) + '|'
-            buff += '\n'
-        return buff
+        # buff = ''
+        # for line in self.board:
+        #     buff += '|'
+        #     for piece in line:
+        #         buff += str(piece) + '|'
+        #     buff += '\n'
+        # return buff
+        return str(self.board)
 
     def get_dimensions(self):
-        return self.nr_lines , self.nr_columns
+        return self.nr_lines, self.nr_columns
 
     def get_board(self):
-        return  self.board
+        return self.board
 
     def get_ball(self, pos):
         return self.board[pos_l(pos)][pos_c(pos)]
 
-    def set_ball_color(self, pos, color):
-        self.board[pos_l(pos)][pos_c(pos)] = color
+    def set_ball_color(self, pos, ball_color):
+        self.board[pos_l(pos)][pos_c(pos)] = ball_color
+
+    def move_ball_to(self, to_pos, from_pos):
+        value = self.get_ball(from_pos)
+        self.set_ball_color(to_pos, value)
+        self.set_ball_color(from_pos, get_no_color())
 
     def __eq__(self, other):
         return self.board == other.get_board()
@@ -95,31 +100,31 @@ class Board:
 
         # removes the balls from the positions in the group
         for pos in group:
-            self.set_ball_color(pos, 0)
+            self.set_ball_color(pos, get_no_color())
 
         # drops the balls
         for j in range(self.nr_columns):
             empty_column = True  # empty column flag
 
             for i in range(self.nr_lines):
-
-                if no_color(self.get_ball(make_pos(i,j))):
-
-                    for k in reversed(range(i)):
-                        self.set_ball_color(make_pos(k+1,j), self.get_ball(make_pos(k,j)))
-                        self.set_ball_color(make_pos(k, j), 0)
+                if no_color(self.get_ball(make_pos(i, j))):
+                    for line in reversed(range(i)):
+                        upper_pos = make_pos(line, j)
+                        lower_pos = make_pos(line + 1, j)
+                        self.move_ball_to(lower_pos, upper_pos)
 
                 else:
                     empty_column = False
 
             # removes the empty column and pushes all elements to the left
             if empty_column:
-                for k in range(j, self.nr_columns - 1):
-                    for i in range(self.nr_lines):
-                        self.set_ball_color(make_pos(i, k), self.get_ball(make_pos(i, k + 1)))
-                        self.set_ball_color(make_pos(i, k + 1), 0)
+                for column in range(j, self.nr_columns - 1):
+                    for line in range(self.nr_lines):
+                        right_column = make_pos(line, column + 1)
+                        left_column = make_pos(line, column)
+                        self.move_ball_to(left_column, right_column)
 
-            return self
+        return self
 
     def _adjacent(self, pos):
         """
@@ -144,10 +149,10 @@ class Board:
         visited = []
         stack = [pos]
         for i in range(self.nr_lines):
-            l = []
+            lst = []
             for j in range(self.nr_columns):
-                l.append(False)
-            visited.append(l)
+                lst.append(False)
+            visited.append(lst)
 
         visited[pos_l(pos)][pos_c(pos)] = True
         while stack:
@@ -160,6 +165,7 @@ class Board:
                     visited[x][y] = True
         return group
 
+
 def board_find_groups(board):
     """
     :param board:
@@ -170,14 +176,20 @@ def board_find_groups(board):
 
 def board_remove_group(b, group):
     board = []
-    for line in b.get_board():
+    if isinstance(b, Board):
+        old_board = b.get_board()
+    else:
+        old_board = b
+
+    for line in old_board:
         board_line = []
         for elem in line:
             board_line.append(elem)
         board.append(board_line)
     return Board(board).remove_group(group)
 
-class sg_stage:
+
+class sg_state:
     """
     Represent a stage in the game
     """
@@ -188,7 +200,10 @@ class sg_stage:
         :param board:
         :type: board: Board
         """
-        self.board = board
+        if isinstance(board, Board):
+            self.board = board
+        else:
+            self.board = Board(board)
         self.cost = 0
 
     def set_cost(self, cost):
@@ -235,9 +250,9 @@ class same_game(Problem):  # class <class_name>(<super_class>):
         """
         :param board: [a lista of lists]
         """
-        self.initial = sg_stage(Board(board))
+        self.initial = sg_state(Board(board))
         nr_lines, nr_columns = self.initial.get_board().get_dimensions()
-        self.goal = sg_stage(Board([[0] * nr_columns] * nr_lines))
+        self.goal = sg_state(Board([[0] * nr_columns] * nr_lines))
 
     def actions(self, state):
         actions = []
@@ -247,7 +262,7 @@ class same_game(Problem):  # class <class_name>(<super_class>):
         return actions
 
     def result(self, state, action):
-        return sg_stage(board_remove_group(state.get_board(),action))
+        return sg_state(board_remove_group(state.get_board(),action))
 
 
     def goal_test(self, state):
@@ -259,6 +274,10 @@ class same_game(Problem):  # class <class_name>(<super_class>):
 
     def h(self, node):
         pass
+
+#print(board_remove_group([[4,4,4,2],[4,4,4,3],[4,4,4,1],[4,4,4,4],[4,4,4,2],[4,4,4,4],[4,4,4,3],[4,4,4,3],[4,4,4,4],[4,4,4,2]], [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (9, 1), (8, 1), (7, 1), (6, 1), (5, 1), (4, 1), (3, 1), (2, 1), (1, 1), (0, 1), (0, 2), (1, 2), (2, 2), (3, 2), (4, 2), (5, 2), (6, 2), (7, 2), (8, 2), (9, 2), (8, 3), (5, 3), (3, 3)]))
+
+
 
 """
 b1_list= [[2,2,2],[1,1,1],[1,1,1]]
