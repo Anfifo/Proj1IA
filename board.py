@@ -103,7 +103,7 @@ class Board:
             self.set_ball_color(pos, get_no_color())
 
         # drops the balls
-        for j in range(self.nr_columns):
+        for j in reversed(range(self.nr_columns)):
             empty_column = True  # empty column flag
 
             for i in range(self.nr_lines):
@@ -274,6 +274,8 @@ class same_game(Problem):  # class <class_name>(<super_class>):
 
     def h(self, node):
         pass
+
+
 
 #print(board_remove_group([[4,4,4,2],[4,4,4,3],[4,4,4,1],[4,4,4,4],[4,4,4,2],[4,4,4,4],[4,4,4,3],[4,4,4,3],[4,4,4,4],[4,4,4,2]], [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (9, 1), (8, 1), (7, 1), (6, 1), (5, 1), (4, 1), (3, 1), (2, 1), (1, 1), (0, 1), (0, 2), (1, 2), (2, 2), (3, 2), (4, 2), (5, 2), (6, 2), (7, 2), (8, 2), (9, 2), (8, 3), (5, 3), (3, 3)]))
 

@@ -1,4 +1,5 @@
 from search import *
+from utils import *
 
 # TAI color
 # sem cor = 0
@@ -103,7 +104,7 @@ class Board:
             self.set_ball_color(pos, get_no_color())
 
         # drops the balls
-        for j in range(self.nr_columns):
+        for j in reversed(range(self.nr_columns)):
             empty_column = True  # empty column flag
 
             for i in range(self.nr_lines):
@@ -262,8 +263,7 @@ class same_game(Problem):  # class <class_name>(<super_class>):
         return actions
 
     def result(self, state, action):
-        return sg_state(board_remove_group(state.get_board(),action))
-
+        return sg_state(board_remove_group(state.get_board(), action))
 
     def goal_test(self, state):
         return state == self.goal
@@ -273,10 +273,13 @@ class same_game(Problem):  # class <class_name>(<super_class>):
         return c + 1
 
     def h(self, node):
-        pass
+        print(isinstance(node, sg_state))
+        # return len(node.get_groups())
+        return 0
+
+
+
 
 #print(board_remove_group([[4,4,4,2],[4,4,4,3],[4,4,4,1],[4,4,4,4],[4,4,4,2],[4,4,4,4],[4,4,4,3],[4,4,4,3],[4,4,4,4],[4,4,4,2]], [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (9, 1), (8, 1), (7, 1), (6, 1), (5, 1), (4, 1), (3, 1), (2, 1), (1, 1), (0, 1), (0, 2), (1, 2), (2, 2), (3, 2), (4, 2), (5, 2), (6, 2), (7, 2), (8, 2), (9, 2), (8, 3), (5, 3), (3, 3)]))
 
-
-#print(same_game([[3,1,3,2],[1,1,1,3],[1,3,2,1],[1,1,3,3],[3,3,1,2],[2,2,2,2],[3,1,2,3],[2,3,2,3],[2,1,1,3],[2,3,1,2]]).goal_test(sg_state([[3,1,3,2],[1,1,1,3],[1,3,2,1],[1,1,3,3],[3,3,1,2],[2,2,2,2],[3,1,2,3],[2,3,2,3],[2,1,1,3],[2,3,1,2]])))
-
+print(astar_search(same_game([[1,1,5,3],[5,3,5,3],[1,2,5,4],[5,2,1,4],[5,3,5,1],[5,3,4,4],[5,5,2,5],[1,1,3,1],[1,2,1,3],[3,3,5,5]])))
