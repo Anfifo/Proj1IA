@@ -46,14 +46,16 @@ class Board:
         """
         :return: String representation of the board
         """
-        # buff = ''
-        # for line in self.board:
-        #     buff += '|'
-        #     for piece in line:
-        #         buff += str(piece) + '|'
-        #     buff += '\n'
-        # return buff
         return str(self.board)
+
+    def graphic_repr(self):
+        buff = ''
+        for line in self.board:
+            buff += '|'
+            for piece in line:
+                buff += str(piece) + '|'
+            buff += '\n'
+        return buff
 
     def get_dimensions(self):
         return self.nr_lines, self.nr_columns
@@ -73,7 +75,7 @@ class Board:
         self.set_ball_color(from_pos, get_no_color())
 
     def __eq__(self, other):
-        return self.board == other.get_board()
+        return self.board == other.board
 
     def find_groups(self):
         """
@@ -176,17 +178,13 @@ def board_find_groups(board):
 
 def board_remove_group(b, group):
     board = []
-    if isinstance(b, Board):
-        old_board = b.get_board()
-    else:
-        old_board = b
-
-    for line in old_board:
+    for line in b:
         board_line = []
         for elem in line:
             board_line.append(elem)
         board.append(board_line)
-    return Board(board).remove_group(group)
+
+    return Board(board).remove_group(group).board
 
 
 class sg_state:
@@ -200,34 +198,8 @@ class sg_state:
         :param board:
         :type: board: Board
         """
-        if isinstance(board, Board):
-            self.board = board
-        else:
-            self.board = Board(board)
-        self.cost = 0
+        self.board = Board(board)
 
-    def set_cost(self, cost):
-        self.cost = cost
-
-    def get_cost(self):
-        return self.cost
-
-    def get_board(self):
-        """
-        :return:
-        :rtype:
-        """
-        return self.board
-
-    def get_groups(self):
-        return self.board.find_groups()
-
-    def __eq__(self, other):
-        """
-        :param: other: board to compare to
-        :rtype: bool
-        """
-        return self.board == other.get_board()
 
     def __lt__(self, other):
         """
@@ -235,10 +207,11 @@ class sg_state:
         :param other: stage to compare to
         :return: true if self < other, false otherwise
         """
-        return self.cost < other.get_cost()
+        return len(self.board.find_groups()) < len(other.board.find_groups())
 
     def __str__(self):
         return str(self.board)
+
 
 
 class same_game(Problem):  # class <class_name>(<super_class>):
@@ -250,72 +223,32 @@ class same_game(Problem):  # class <class_name>(<super_class>):
         """
         :param board: [a lista of lists]
         """
-        self.initial = sg_state(Board(board))
-        nr_lines, nr_columns = self.initial.get_board().get_dimensions()
-        self.goal = sg_state(Board([[0] * nr_columns] * nr_lines))
+        self.initial = sg_state(board)
+        nr_lines, nr_columns = self.initial.board.get_dimensions()
+        self.goal = sg_state([[0] * nr_columns] * nr_lines)
 
     def actions(self, state):
         actions = []
-        for group in state.get_groups():
+        for group in state.board.find_groups():
             if len(group) > 1:
                 actions.append(group)
         return actions
 
     def result(self, state, action):
-        return sg_state(board_remove_group(state.get_board(),action))
+        return sg_state(board_remove_group(state.board.board,action))
 
 
     def goal_test(self, state):
-        return state == self.goal
+        return state.board == self.goal.board
 
     def path_cost(self, c, state1, action, state2):
-        state2.set_cost(c+1)
         return c + 1
 
     def h(self, node):
-        pass
+        return len(node.state.board.find_groups())
 
 
+def greedy_search(problem):
+    return best_first_graph_search(problem, lambda n: problem.h(n))
 
-#print(board_remove_group([[4,4,4,2],[4,4,4,3],[4,4,4,1],[4,4,4,4],[4,4,4,2],[4,4,4,4],[4,4,4,3],[4,4,4,3],[4,4,4,4],[4,4,4,2]], [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (9, 1), (8, 1), (7, 1), (6, 1), (5, 1), (4, 1), (3, 1), (2, 1), (1, 1), (0, 1), (0, 2), (1, 2), (2, 2), (3, 2), (4, 2), (5, 2), (6, 2), (7, 2), (8, 2), (9, 2), (8, 3), (5, 3), (3, 3)]))
-
-
-
-"""
-b1_list= [[2,2,2],[1,1,1],[1,1,1]]
-b1 = Board(b1_list)
-game = same_game(b1_list)
-"""
-
-"""
-state1 = sg_stage(b1)
-print("State 1:")
-print(state1)
-print(game.h(state1))
-
-#print(game.goal_test(state1))
-
-actions1 = game.actions(state1)
-#print (actions1)
-
-state2 = game.result(state1, actions1[0])
-print("State 2:")
-print(state2)
-print(game.h(state2))
-
-#print(game.goal_test(state2))
-
-actions2 = game.actions(state2)
-#print (actions2)
-
-state3 = game.result(state2, actions2[0])
-print("State 3:")
-print(state3)
-print(game.h(state3))
-
-
-"""
-
-#print(game.goal_test(state3))
-
-
+#print(greedy_search(same_game([[1,1,5,3],[5,3,5,3],[1,2,5,4],[5,2,1,4],[5,3,5,1],[5,3,4,4],[5,5,2,5],[1,1,3,1],[1,2,1,3],[3,3,5,5]])))
