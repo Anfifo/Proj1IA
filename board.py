@@ -129,23 +129,24 @@ class Board:
         :return: A list with all the groups in the board
         """
         return self.find_groups_recursive()
-        #
-        # nr_columns = self.nr_columns
-        # nr_lines = self.nr_lines
-        #
-        # groups = []
-        # visited = []
-        # for i in range(nr_lines):
-        #     visited.append([False]*nr_columns)
-        #
-        # for i in range(nr_lines):
-        #     for j in range(nr_columns):
-        #         if not visited[i][j] and color(self.get_ball(make_pos(i, j))):
-        #             group = self._find_group(make_pos(i, j))
-        #             for x, y in group:
-        #                 visited[x][y] = True
-        #             groups.append(group)
-        # return groups
+
+    def find_groups_iterative(self):
+        nr_columns = self.nr_columns
+        nr_lines = self.nr_lines
+
+        groups = []
+        visited = []
+        for i in range(nr_lines):
+            visited.append([False]*nr_columns)
+
+        for i in range(nr_lines):
+            for j in range(nr_columns):
+                if not visited[i][j] and color(self.get_ball(make_pos(i, j))):
+                    group = self._find_group(make_pos(i, j))
+                    for x, y in group:
+                        visited[x][y] = True
+                    groups.append(group)
+        return groups
 
     def remove_group(self, group):
 
@@ -297,14 +298,6 @@ class same_game(Problem):  # class <class_name>(<super_class>):
 
 def greedy_search(problem):
     return best_first_graph_search(problem, lambda n: problem.h(n))
-
-
-def main():
-    print(depth_first_tree_search(same_game([[1,1,5,3],[5,3,5,3],[1,2,5,4],[5,2,1,4],[5,3,5,1], [5,3,4,4],[5,5,2,5],[1,1,3,1],[1,2,1,3],[3,3,5,5]])))
-
-
-if __name__ == "__main__":
-    main()
 
 
 
