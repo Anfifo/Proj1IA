@@ -68,7 +68,7 @@ def compare_board_solvers_last():
 
 
 # print_fancy_matrix(t10x4_5)
-compare_board_solvers()
+#compare_board_solvers()
 #compare_board_solvers_last()
 
 
@@ -101,29 +101,29 @@ compare_board_solvers()
 
 
 
-#
-# directory = "tests/"
-#
-# folders_list = [os.path.join(directory, file) for file in os.listdir(directory) if os.path.isdir(os.path.join(directory, file))]
-#
-# for file_dir in folders_list:
-#
-#     file_list = [os.path.join(file_dir, file) for file in os.listdir(file_dir) if os.path.isfile(os.path.join(file_dir, file))]
-#
-#     print("test:" + file_dir + "\n\n")
-#
-#     for file in file_list:
-#
-#         f = open(file, "r")
-#
-#         for line in f:
-#             if file[-5:] == "input":
-#                 exec(line)
-#             else:
-#                 print("expected:\n" + line)
-#
-#         f.close()
-#
+
+directory = "tests/"
+
+folders_list = [os.path.join(directory, file) for file in os.listdir(directory) if os.path.isdir(os.path.join(directory, file))]
+
+for file_dir in folders_list:
+
+    file_list = [os.path.join(file_dir, file) for file in os.listdir(file_dir) if os.path.isfile(os.path.join(file_dir, file))]
+
+    print("test:" + file_dir + "\n\n")
+
+    for file in file_list:
+
+        f = open(file, "r")
+
+        for line in f:
+            if file[-5:] == "input":
+                exec(line)
+            else:
+                print("expected:\n" + line)
+
+        f.close()
+
 # print(sorted(board_find_groups([[3,1,3,2],[1,1,1,3],[1,3,2,1],[1,1,3,3],[3,3,1,2],[2,2,2,2],[3,1,2,3],[2,3,2,3],[2,1,1,3],[2,3,1,2]])))
 # print([[(0, 0)], [(0, 1), (1, 0), (1, 1), (1, 2), (2, 0), (3, 0), (3, 1)], [(0, 2)], [(0, 3)], [(1, 3)], [(2, 1)], [(2, 2)], [(2, 3)], [(3, 2), (3, 3)], [(4, 0), (4, 1)], [(4, 2)], [(4, 3), (5, 0), (5, 1), (5, 2), (5, 3), (6, 2), (7, 2)], [(6, 0)], [(6, 1)], [(6, 3), (7, 3), (8, 3)], [(7, 0), (8, 0), (9, 0)], [(7, 1)], [(8, 1), (8, 2), (9, 2)], [(9, 1)], [(9, 3)]]
 # )

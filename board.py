@@ -105,7 +105,11 @@ class Board:
     def __eq__(self, other):
         return self.board == other.board
 
-    def find_groups_recursive(self):
+    def find_groups(self):
+        """
+        finds all groups of colours: a group is composed by adjacent elements with same colour
+        :return: list with all groups of colours
+        """
         board = self
         groups = []
         positions = []
@@ -113,8 +117,8 @@ class Board:
 
         for i in range(lines):
             for j in range(columns):
-                if color(board.get_ball(( make_pos(i,j)))):
-                    positions.append(make_pos(i,j))
+                if color(board.get_ball((make_pos(i, j)))):
+                    positions.append(make_pos(i, j))
 
         while positions:
             group = []
@@ -122,30 +126,6 @@ class Board:
             aux_find_groups(pos, positions, group, board)
             groups.append(group)
 
-        return groups
-
-    def find_groups(self):
-        """
-        :return: A list with all the groups in the board
-        """
-        return self.find_groups_recursive()
-
-    def find_groups_iterative(self):
-        nr_columns = self.nr_columns
-        nr_lines = self.nr_lines
-
-        groups = []
-        visited = []
-        for i in range(nr_lines):
-            visited.append([False]*nr_columns)
-
-        for i in range(nr_lines):
-            for j in range(nr_columns):
-                if not visited[i][j] and color(self.get_ball(make_pos(i, j))):
-                    group = self._find_group(make_pos(i, j))
-                    for x, y in group:
-                        visited[x][y] = True
-                    groups.append(group)
         return groups
 
     def remove_group(self, group):
@@ -178,44 +158,6 @@ class Board:
 
         return self
 
-    def _adjacent(self, pos):
-        """
-        :param pos:
-        :return: A list with the positions of the adjacent pieces of the same color of the pice in the given position
-        """
-        positions = [make_pos(pos_l(pos) - 1, pos_c(pos)), make_pos(pos_l(pos) + 1, pos_c(pos)), make_pos(pos_l(pos), pos_c(pos) - 1),
-                     make_pos(pos_l(pos), pos_c(pos) + 1)]
-        adjacent_positions = []
-        c = self.get_ball(pos)
-        for p in positions:
-            if 0 <= pos_l(p) < self.nr_lines and 0 <= pos_c(p) < self.nr_columns and self.get_ball(p) == c:
-                adjacent_positions.append(p)
-        return adjacent_positions
-
-    def _find_group(self, pos):
-        """
-        :param pos:
-        :return a list with all the positions of the balls in the same group as the ball in the given position
-        """
-        group = [pos]
-        visited = []
-        stack = [pos]
-        for i in range(self.nr_lines):
-            lst = []
-            for j in range(self.nr_columns):
-                lst.append(False)
-            visited.append(lst)
-
-        visited[pos_l(pos)][pos_c(pos)] = True
-        while stack:
-            pos = stack.pop()
-            for p in self._adjacent(pos):
-                (x, y) = p
-                if not visited[x][y]:
-                    stack.append(p)
-                    group.append(p)
-                    visited[x][y] = True
-        return group
 
 
 def board_find_groups(board):
@@ -256,7 +198,7 @@ class sg_state:
         :param other: stage to compare to
         :return: true if self < other, false otherwise
         """
-        return True #len(self.board.find_groups()) < len(other.board.find_groups())
+        return True #len(self.board.find_groups()) < len(other.board.find_groups()) !!NOTE!! unused since it doesn't improve performance
 
     def __str__(self):
         return str(self.board)
@@ -296,8 +238,6 @@ class same_game(Problem):  # class <class_name>(<super_class>):
         return len(node.state.board.find_groups())
 
 
-def greedy_search(problem):
-    return best_first_graph_search(problem, lambda n: problem.h(n))
 
 
 
