@@ -1,5 +1,6 @@
 from search import *
 
+
 # TAI color
 # sem cor = 0
 # com cor > 0
@@ -27,6 +28,33 @@ def pos_l(pos):
 
 def pos_c(pos):
     return pos[1]
+
+
+def aux_find_groups(pos, positions, group, board):
+    top = make_pos(pos_l(pos) - 1, pos_c(pos))
+    bottom = make_pos(pos_l(pos) + 1, pos_c(pos))
+    right = make_pos(pos_l(pos), pos_c(pos) + 1)
+    left = make_pos(pos_l(pos), pos_c(pos) - 1)
+
+    lines, columns = board.get_dimensions()
+
+    group.append(pos)
+
+    if pos_l(top) >= 0 and board.get_ball(top) == board.get_ball(pos) and top not in group and top in positions:
+        positions.remove(top)
+        aux_find_groups(top, positions, group, board)
+
+    if pos_l(bottom) < lines and board.get_ball(bottom) == board.get_ball(pos) and bottom not in group and bottom in positions:
+        positions.remove(bottom)
+        aux_find_groups(bottom, positions, group, board)
+
+    if pos_c(right) < columns and board.get_ball(right) == board.get_ball(pos) and right not in group and right in positions:
+        positions.remove(right)
+        aux_find_groups(right, positions, group, board)
+
+    if pos_c(left) >= 0 and board.get_ball(left) == board.get_ball(pos) and left not in group and left in positions:
+        positions.remove(left)
+        aux_find_groups(left, positions, group, board)
 
 
 class Board:
@@ -77,26 +105,47 @@ class Board:
     def __eq__(self, other):
         return self.board == other.board
 
+    def find_groups_recursive(self):
+        board = self
+        groups = []
+        positions = []
+        lines, columns = board.get_dimensions()
+
+        for i in range(lines):
+            for j in range(columns):
+                if color(board.get_ball(( make_pos(i,j)))):
+                    positions.append(make_pos(i,j))
+
+        while positions:
+            group = []
+            pos = positions.pop()
+            aux_find_groups(pos, positions, group, board)
+            groups.append(group)
+
+        return groups
+
     def find_groups(self):
         """
         :return: A list with all the groups in the board
         """
-        nr_columns = self.nr_columns
-        nr_lines = self.nr_lines
-
-        groups = []
-        visited = []
-        for i in range(nr_lines):
-            visited.append([False]*nr_columns)
-
-        for i in range(nr_lines):
-            for j in range(nr_columns):
-                if not visited[i][j] and self.get_ball(make_pos(i, j)):
-                    group = self._find_group(make_pos(i, j))
-                    for x, y in group:
-                        visited[x][y] = True
-                    groups.append(group)
-        return groups
+        return self.find_groups_recursive()
+        #
+        # nr_columns = self.nr_columns
+        # nr_lines = self.nr_lines
+        #
+        # groups = []
+        # visited = []
+        # for i in range(nr_lines):
+        #     visited.append([False]*nr_columns)
+        #
+        # for i in range(nr_lines):
+        #     for j in range(nr_columns):
+        #         if not visited[i][j] and color(self.get_ball(make_pos(i, j))):
+        #             group = self._find_group(make_pos(i, j))
+        #             for x, y in group:
+        #                 visited[x][y] = True
+        #             groups.append(group)
+        # return groups
 
     def remove_group(self, group):
 
@@ -200,14 +249,13 @@ class sg_state:
         """
         self.board = Board(board)
 
-
     def __lt__(self, other):
         """
         Less than operator
         :param other: stage to compare to
         :return: true if self < other, false otherwise
         """
-        return len(self.board.find_groups()) < len(other.board.find_groups())
+        return True #len(self.board.find_groups()) < len(other.board.find_groups())
 
     def __str__(self):
         return str(self.board)
@@ -235,11 +283,10 @@ class same_game(Problem):  # class <class_name>(<super_class>):
         return actions
 
     def result(self, state, action):
-        return sg_state(board_remove_group(state.board.board,action))
-
+        return sg_state(board_remove_group(state.board.board, action))
 
     def goal_test(self, state):
-        return state.board == self.goal.board
+        return no_color(state.board.get_ball(make_pos(state.board.get_dimensions()[0] - 1, 0)))
 
     def path_cost(self, c, state1, action, state2):
         return c + 1
@@ -251,4 +298,15 @@ class same_game(Problem):  # class <class_name>(<super_class>):
 def greedy_search(problem):
     return best_first_graph_search(problem, lambda n: problem.h(n))
 
-#print(greedy_search(same_game([[1,1,5,3],[5,3,5,3],[1,2,5,4],[5,2,1,4],[5,3,5,1],[5,3,4,4],[5,5,2,5],[1,1,3,1],[1,2,1,3],[3,3,5,5]])))
+
+def main():
+    print(depth_first_tree_search(same_game([[1,1,5,3],[5,3,5,3],[1,2,5,4],[5,2,1,4],[5,3,5,1], [5,3,4,4],[5,5,2,5],[1,1,3,1],[1,2,1,3],[3,3,5,5]])))
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
