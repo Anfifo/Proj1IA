@@ -1,3 +1,4 @@
+# Grupo 02 # Andre Fonseca 84698 # Leonor Loureiro 84736
 from search import *
 
 
